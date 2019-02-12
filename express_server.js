@@ -13,6 +13,15 @@ let urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+function generateRandomString() {
+  let randomString="";
+  let characterSet = "abcdefghijklmnopqrstyuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  for(let i = 0; i <= 5; i++){
+    randomString += characterSet.charAt(Math.floor(Math.random() * characterSet.length));
+  }
+  return randomString;
+}
+
 app.get("/", (req, res) =>{
   res.send("Hello!")
 });
