@@ -13,11 +13,18 @@
 
 <body style="font-size:20px; padding:50px;">
 
-   <ul> <% for (var shortenedURL in urls) { %>
-      <li> <%= urls[shortenedURL] %>  - <%= shortenedURL%></li>
+  <header>
+    <% include ./partials/_header %>
+  </header>
+
+  <a href="#">Create New TinyURL</a>
+
+  <h2> My URLs </h2>
+
+  <ul> <% for (var shortenedURL in urls) { %>
+    <li> <b> <%= shortenedURL%> </b> : <%= urls[shortenedURL] %></li>
    <% } %>
-   </ul>
-<a href="#">link for shortening URL</a>
+  </ul>
 
 </body>
 </html>

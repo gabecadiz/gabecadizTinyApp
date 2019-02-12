@@ -13,11 +13,14 @@
 
 <body style="font-size:20px; padding:50px;">
 
-   <ul>
-      <li> <%= longURL %>  - <%= shortURL%></li>
+  <header>
+    <% include ./partials/_header %>
+  </header>
 
-   </ul>
-<a href="#">link for shortening URL</a>
+  <a href="#">link for shortening URL</a>
+
+      <p><b> TinyURL for <%= longURL %> </b></p>
+      <p> <%= shortURL%> </p>
 
 </body>
 </html>
