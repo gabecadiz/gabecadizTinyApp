@@ -16,9 +16,7 @@
     <% include partials/_header %>
 
     <a href="/urls/new">Create New TinyURL</a>
-
     <h2> My URLs </h2>
-
     <ul> <% for (var shortenedURL in urls) { %>
       <li> <b> <%= shortenedURL%> </b> : <%= urls[shortenedURL] %></li>
      <% } %>
