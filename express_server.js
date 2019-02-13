@@ -15,6 +15,19 @@ let urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+}
+
 function generateRandomString() {
   let randomString="";
   let characterSet = "abcdefghijklmnopqrstyuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -23,6 +36,27 @@ function generateRandomString() {
   }
   return randomString;
 }
+
+app.post("/register", (req, res) =>{
+  let randomId = generateRandomString();
+  if(!req.body.email || !req.body.password){
+    res.status(400).end("missing input");
+  } else if (req.body.email ){
+    for ( let eachUser in users){
+      if (users[eachUser].email === req.body.email){
+        res.status(400).end("email already exists");
+      }
+    }
+  }
+  users[randomId] = {
+    id: randomId,
+    email: req.body.email,
+    password: req.body.password
+  }
+  res.cookie("used_id", randomId)
+  console.log(users);
+  res.redirect(`/urls`);
+})
 
 //post that handles cookie username
 app.post("/login", (req, res) => {
