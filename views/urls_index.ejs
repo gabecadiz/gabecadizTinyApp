@@ -8,6 +8,11 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <title>TinyApp</title>
+    <style>
+      td{
+        padding: 5px 10px 5px 10px;
+      }
+    </style>
 
   </head>
 
@@ -16,16 +21,17 @@
     <% include partials/_header %>
 
     <h2> My URLs </h2>
-    <ul> <% for (var shortenedURL in urls) { %>
-      <li style="padding-bottom:15px"> <b> <%= shortenedURL%> </b> : <%= urls[shortenedURL] %>
-
-        <a href="/urls/<%=shortenedURL%>" >Edit</a>
-          <form method="POST" action="/urls/<%= shortenedURL %>/delete" id="deleteform" style="display:inline">
+    <table> <% for (var shortenedURL in urls) { %>
+      <tr style="padding-bottom:15px">
+        <td><b> <%= shortenedURL%> </b> </td>
+        <td> <%= urls[shortenedURL] %></td>
+        <td> <a href="/urls/<%=shortenedURL%>" >Edit</a> </td>
+        <td> <form method="POST" action="/urls/<%= shortenedURL %>/delete" id="deleteform" style="display:inline">
               <button type="submit" class="btn btn-primary">Delete Link</button>
-          </form>
-        </li>
+          </form> </td>
+        </tr>
      <% } %>
-    </ul>
+    </table>
 
   </body>
 </html>
