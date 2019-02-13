@@ -1,11 +1,11 @@
 const express = require("express");
 const app = express();
 const cookieParser = require('cookie-parser');
+const bodyParser = require("body-parser");
 const PORT = 8080 // default port 8080
 
-const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
 
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser())
 
 app.set("view engine", "ejs");
@@ -24,19 +24,18 @@ function generateRandomString() {
   return randomString;
 }
 
-app.post("/logout", (req, res) =>{
-  res.clearCookie("username");
-  res.redirect(`/urls`)
-})
-
-
 //post that handles cookie username
 app.post("/login", (req, res) => {
   res.cookie("username", req.body.username)
   res.redirect(`/urls`)
 })
+//post that logs user out, removes cookie
+app.post("/logout", (req, res) =>{
+  res.clearCookie("username");
+  res.redirect(`/urls`)
+})
 
-//creates a short URL string associated with a given long URL
+//creates a random string associated with a given long URL
 app.post("/urls", (req, res) => {
   let randomString = generateRandomString();
   urlDatabase[randomString] = req.body.longURL; // Log the POST request body to the console
@@ -54,7 +53,6 @@ app.post("/urls/:shortURL/update", (req, res) =>{
   urlDatabase[req.params.shortURL] = req.body.newLongURL;
   res.redirect(`/urls`)
 })
-
 
 //redirects user from short url to associated long url
 app.get("/u/:shortURL", (req, res) => {
@@ -74,7 +72,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls", (req, res) =>{
   let templateVars = {
     'username': req.cookies["username"],
-    urls: urlDatabase
+     urls: urlDatabase
   }
   res.render("urls_index", templateVars)
 });
