@@ -45,7 +45,7 @@ app.post("/urls/:shortURL/delete", (req, res) =>{
 
 //updates short url be associated with a new given long URL from user
 app.post("/urls/:shortURL/update", (req, res) =>{
-  urlDatabase[req.params.shortURL] = req.body.longURL;
+  urlDatabase[req.params.shortURL] = req.body.newLongURL;
   res.redirect(`/urls`)
 })
 

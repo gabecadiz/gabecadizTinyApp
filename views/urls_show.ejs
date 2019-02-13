@@ -19,7 +19,7 @@
       <div><b> ShortURL: <%= shortURL%> </b></div>
       <form class="form-inline" action="/urls/<%= shortURL %>/update" method="POST">
       <div class="form-group mb-2">
-        <input class="form-control" type="text" name="longURL" placeholder= <%= longURL %>  style="width: 300px; margin: 1em">
+        <input class="form-control" type="text" name="newLongURL" placeholder= <%= longURL %>  style="width: 300px; margin: 1em">
         <button type="submit" class="btn btn-primary">UPDATE</button>
       </div>
     </form>
