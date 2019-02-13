@@ -54,6 +54,14 @@ app.post("/urls/:shortURL/update", (req, res) =>{
   res.redirect(`/urls`)
 })
 
+app.get("/register", (req, res) => {
+    let templateVars = {
+    'username': req.cookies["username"],
+     urls: urlDatabase
+  }
+  res.render("registration", templateVars);
+});
+
 //redirects user from short url to associated long url
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
