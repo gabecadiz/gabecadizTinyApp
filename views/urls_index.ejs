@@ -19,10 +19,10 @@
     <h2> My URLs </h2>
     <ul> <% for (var shortenedURL in urls) { %>
       <li> <b> <%= shortenedURL%> </b> : <%= urls[shortenedURL] %>
-          <form method="POST" action="/urls/<%= shortenedURL %>/delete">
-            <div class="form-group mb-2">
+
+        <a href="/urls/<%=shortenedURL%>">Edit</a>
+          <form method="POST" action="/urls/<%= shortenedURL %>/delete" id="deleteform" style="display:inline">
               <button type="submit" class="btn btn-primary">Delete Link</button>
-            </div>
           </form>
         </li>
      <% } %>
