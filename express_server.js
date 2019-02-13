@@ -30,27 +30,33 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+//creates a short URL string associated with a given long URL
 app.post("/urls", (req, res) => {
   let randomString = generateRandomString();
   urlDatabase[randomString] = req.body.longURL; // Log the POST request body to the console
   res.redirect(`/urls/${randomString}`);
 });
 
+//deletes link from list
 app.post("/urls/:shortURL/delete", (req, res) =>{
   delete urlDatabase[req.params.shortURL];
   res.redirect(`/urls`)
 })
 
+//updates short url be associated with a new given long URL from user
 app.post("/urls/:shortURL/update", (req, res) =>{
   urlDatabase[req.params.shortURL] = req.body.longURL;
   res.redirect(`/urls`)
 })
 
+
+//redirects user from short url to associated long url
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
 
+//displays all given urls
 app.get("/urls", (req, res) =>{
   let templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars)
@@ -70,7 +76,7 @@ app.get("/hello", (req, res) => {
 });
 
 app.listen(PORT, () =>{
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`TinyApp listening on port ${PORT}!`);
 });
 
 //
