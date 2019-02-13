@@ -15,10 +15,16 @@
 
     <% include partials/_header %>
 
-    <a href="/urls/new">Create New TinyURL</a>
+
     <h2> My URLs </h2>
     <ul> <% for (var shortenedURL in urls) { %>
-      <li> <b> <%= shortenedURL%> </b> : <%= urls[shortenedURL] %></li>
+      <li> <b> <%= shortenedURL%> </b> : <%= urls[shortenedURL] %>
+          <form method="POST" action="/urls/<%= shortenedURL %>/delete">
+            <div class="form-group mb-2">
+              <button type="submit" class="btn btn-primary">Delete Link</button>
+            </div>
+          </form>
+        </li>
      <% } %>
     </ul>
 
