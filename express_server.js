@@ -38,6 +38,7 @@ function generateRandomString() {
 }
 
 app.post("/register", (req, res) =>{
+  console.log(req.body)
   let randomId = generateRandomString();
   if(!req.body.email || !req.body.password){
     res.status(400).end("missing input");
@@ -58,10 +59,27 @@ app.post("/register", (req, res) =>{
   res.redirect(`/urls`);
 })
 
-//post that handles cookie username
+//post that handles login
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username)
-  res.redirect(`/urls`)
+
+  let emailFlag = true;
+
+  for (let eachUser in users){
+    if (users[eachUser].email === req.body.email){
+        console.log("email match found");
+        if (users[eachUser].password === req.body.password){
+          res.cookie("used_id", users[eachUser].id)
+          res.redirect(`/urls`);
+        } else {
+          res.status(403).end("Incorrect Password")
+        }
+    } else {
+      emailFlag = false;
+    }
+  }
+  if(!emailFlag){
+    res.status(403).end("Email does not exist")
+  }
 })
 //post that logs user out, removes cookie
 app.post("/logout", (req, res) =>{
@@ -88,6 +106,17 @@ app.post("/urls/:shortURL/update", (req, res) =>{
   res.redirect(`/urls`)
 })
 
+//login page
+app.get("/login", (req, res) => {
+  let user = req.cookies["used_id"]
+    let templateVars = {
+     urls: urlDatabase,
+     "user": users[user]
+  }
+  res.render("login", templateVars);
+});
+
+//register page
 app.get("/register", (req, res) => {
     let user = req.cookies["used_id"]
     let templateVars = {
