@@ -91,8 +91,10 @@ app.post("/logout", (req, res) =>{
 
 //creates a random string associated with a given long URL
 app.post("/urls", (req, res) => {
+  let user = req.cookies["used_id"]
   let randomString = generateRandomString();
-  urlDatabase[randomString] = req.body.longURL;
+  urlDatabase[randomString] = {"longURL":req.body.longURL, "userID": user};
+  console.log(urlDatabase)
   res.redirect(`/urls/${randomString}`);
 });
 
