@@ -65,7 +65,7 @@ app.post("/login", (req, res) => {
 })
 //post that logs user out, removes cookie
 app.post("/logout", (req, res) =>{
-  res.clearCookie("username");
+  res.clearCookie("used_id");
   res.redirect(`/urls`)
 })
 
@@ -89,9 +89,10 @@ app.post("/urls/:shortURL/update", (req, res) =>{
 })
 
 app.get("/register", (req, res) => {
+    let user = req.cookies["used_id"]
     let templateVars = {
-    'username': req.cookies["username"],
-     urls: urlDatabase
+     urls: urlDatabase,
+     "user" : users[user]
   }
   res.render("registration", templateVars);
 });
@@ -107,27 +108,30 @@ app.get("/", (req, res) =>{
 });
 
 app.get("/urls/new", (req, res) => {
+    let user = req.cookies["used_id"]
     let templateVars = {
-    'username': req.cookies["username"],
-     urls: urlDatabase
+     urls: urlDatabase,
+     "user": users[user]
   }
   res.render("urls_new", templateVars);
 });
 
 //displays all given urls
 app.get("/urls", (req, res) =>{
+  let user = req.cookies["used_id"]
   let templateVars = {
-    'username': req.cookies["username"],
-     urls: urlDatabase
+    urls: urlDatabase,
+    "user": users[user]
   }
   res.render("urls_index", templateVars)
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+  let user = req.cookies["used_id"]
   let templateVars = {
-    'username': req.cookies["username"],
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL]
+    longURL: urlDatabase[req.params.shortURL],
+    "user": users[user]
   }
   res.render("urls_show", templateVars)
 });
