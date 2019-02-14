@@ -98,14 +98,24 @@ app.post("/urls", (req, res) => {
 
 //deletes link from list
 app.post("/urls/:shortURL/delete", (req, res) =>{
+  let user = req.cookies["used_id"]
+  if (!user || urlDatabase[req.params.shortURL].userID !== user){
+    res.send("please login to delete url")
+  } else {
   delete urlDatabase[req.params.shortURL];
   res.redirect(`/urls`)
+  }
 })
 
 //updates short url be associated with a new given long URL from user
 app.post("/urls/:shortURL/update", (req, res) =>{
+  let user = req.cookies["used_id"]
+  if (!user || urlDatabase[req.params.shortURL].userID !== user){
+    res.send("please login to update url")
+  } else {
   urlDatabase[req.params.shortURL] = req.body.newLongURL;
   res.redirect(`/urls`)
+  }
 })
 
 //login page
@@ -172,7 +182,6 @@ app.get("/urls", (req, res) =>{
     "user": users[user]
   }
 
-
   if(user === undefined){
     res.send("please login to correct account to view URLs")
   } else {
@@ -184,7 +193,7 @@ app.get("/urls", (req, res) =>{
 app.get("/urls/:shortURL", (req, res) => {
 
   let user = req.cookies["used_id"]
-  console.log(user)
+
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
