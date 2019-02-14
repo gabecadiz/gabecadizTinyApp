@@ -11,22 +11,24 @@ app.use(cookieParser())
 app.set("view engine", "ejs");
 
 let urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "1godsK": {longURL: "http://www.google.com", userID: "123456"},
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "aJ48lW"},
+  "9sm5xK": {longURL: "http://www.google.com", userID: "aJ48lW"},
 };
 
 const users = {
-  "userRandomID": {
-    id: "userRandomID",
+  "aJ48lW": {
+    id: "aJ48lW",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: "password"
   },
  "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: "password"
   }
 }
+
 
 function generateRandomString() {
   let randomString="";
@@ -38,7 +40,7 @@ function generateRandomString() {
 }
 
 app.post("/register", (req, res) =>{
-  console.log(req.body)
+
   let randomId = generateRandomString();
   if(!req.body.email || !req.body.password){
     res.status(400).end("missing input");
@@ -55,7 +57,7 @@ app.post("/register", (req, res) =>{
     password: req.body.password
   }
   res.cookie("used_id", randomId)
-  console.log(users);
+
   res.redirect(`/urls`);
 })
 
@@ -66,7 +68,7 @@ app.post("/login", (req, res) => {
 
   for (let eachUser in users){
     if (users[eachUser].email === req.body.email){
-        console.log("email match found");
+
         if (users[eachUser].password === req.body.password){
           res.cookie("used_id", users[eachUser].id)
           res.redirect(`/urls`);
@@ -90,7 +92,7 @@ app.post("/logout", (req, res) =>{
 //creates a random string associated with a given long URL
 app.post("/urls", (req, res) => {
   let randomString = generateRandomString();
-  urlDatabase[randomString] = req.body.longURL; // Log the POST request body to the console
+  urlDatabase[randomString] = req.body.longURL;
   res.redirect(`/urls/${randomString}`);
 });
 
@@ -142,7 +144,6 @@ app.get("/urls/new", (req, res) => {
      urls: urlDatabase,
      "user": users[user]
   }
-  console.log(user)
   if(user === undefined){
     res.redirect(`/login`)
   } else {
@@ -150,24 +151,52 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
+function urlsForUser(id){
+  let personalDatabase = {}
+
+  for (eachURL in urlDatabase){
+
+    if(id == urlDatabase[eachURL].userID){
+      personalDatabase[eachURL] = urlDatabase[eachURL].longURL
+    }
+  }
+  return personalDatabase
+}
+
 //displays all given urls
 app.get("/urls", (req, res) =>{
   let user = req.cookies["used_id"]
+
   let templateVars = {
-    urls: urlDatabase,
+    urls: urlsForUser(user),
     "user": users[user]
   }
-  res.render("urls_index", templateVars)
+
+
+  if(user === undefined){
+    res.send("please login to correct account to view URLs")
+  } else {
+  res.render("urls_index", templateVars);
+  }
+
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+
   let user = req.cookies["used_id"]
+  console.log(user)
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
     "user": users[user]
   }
+
+  if (!user || urlDatabase[req.params.shortURL].userID !== user){
+    res.send("please login to view url")
+  }
+  else {
   res.render("urls_show", templateVars)
+  }
 });
 
 app.get("/urls.json", (req,res) => {
