@@ -142,7 +142,12 @@ app.get("/urls/new", (req, res) => {
      urls: urlDatabase,
      "user": users[user]
   }
+  console.log(user)
+  if(user === undefined){
+    res.redirect(`/login`)
+  } else {
   res.render("urls_new", templateVars);
+  }
 });
 
 //displays all given urls
