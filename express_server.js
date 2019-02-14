@@ -142,8 +142,8 @@ app.get("/register", (req, res) => {
 
 //redirects user from short url to associated long url
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
+  const fullURL = urlDatabase[req.params.shortURL].longURL;
+  res.redirect(fullURL);
 });
 
 app.get("/", (req, res) =>{
