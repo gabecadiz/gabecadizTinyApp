@@ -115,7 +115,7 @@ app.post("/urls/:shortURL/update", (req, res) =>{
   if (!user || urlDatabase[req.params.shortURL].userID !== user){
     res.send("please login to update url")
   } else {
-  urlDatabase[req.params.shortURL] = req.body.newLongURL;
+  urlDatabase[req.params.shortURL] = {"longURL":req.body.newLongURL, "userID": user};
   res.redirect(`/urls`)
   }
 })
