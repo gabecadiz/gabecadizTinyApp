@@ -9,12 +9,9 @@ const cookieSession = require('cookie-session')
 app.use(cookieSession({
   name: 'session',
   keys: ["random string for keys"],
-
 }))
 
-
 app.use(bodyParser.urlencoded({extended: true}));
-
 
 app.set("view engine", "ejs");
 
@@ -23,7 +20,6 @@ let urlDatabase = {
   "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "aJ48lW"},
   "9sm5xK": {longURL: "http://www.google.com", userID: "aJ48lW"},
 };
-
 const users = {
   "aJ48lW": {
     id: "aJ48lW",
@@ -31,7 +27,6 @@ const users = {
     password: '$2b$10$/nJhkyBZUh4xmEjivYQsu.4VnLg4LKMMNF0YSj2ktIlP370K4tT26'
   }
 };
-
 
 function generateRandomString() {
   let randomString="";
@@ -59,8 +54,7 @@ app.post("/register", (req, res) =>{
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, 10)
   };
-  req.session.used_id = randomId;
-
+  req.session.user_id = randomId;
   res.redirect(`/urls`);
 });
 
@@ -69,9 +63,8 @@ app.post("/login", (req, res) => {
   let emailFlag = true;
   for (let eachUser in users){
     if (users[eachUser].email === req.body.email){
-        if (bcrypt.compareSync(req.body.password, users[eachUser].password)){
-          req.session.user_id = users[eachUser].id;
-
+      if (bcrypt.compareSync(req.body.password, users[eachUser].password)){
+        req.session.user_id = users[eachUser].id;
           res.redirect(`/urls`);
         } else {
           res.status(403).end("Incorrect Password");
@@ -133,11 +126,15 @@ app.get("/login", (req, res) => {
 //register page
 app.get("/register", (req, res) => {
   let user = req.session.user_id;
+  if(user === undefined){
     let templateVars = {
      urls: urlDatabase,
      "user" : users[user]
   };
   res.render("registration", templateVars);
+  } else {
+    res.redirect(`/urls`)
+  }
 });
 
 //redirects user from short url to associated long url
@@ -149,7 +146,7 @@ app.get("/u/:shortURL", (req, res) => {
 app.get("/", (req, res) =>{
   let user = req.session.user_id;
   if(user === undefined){
-    res.redirect(`/login`)
+    res.redirect(`/login`);
   } else {
     res.redirect(`/urls`);
   }
@@ -162,57 +159,50 @@ app.get("/urls/new", (req, res) => {
      "user": users[user]
   }
   if(user === undefined){
-    res.redirect(`/login`)
+    res.redirect(`/login`);
   } else {
   res.render("urls_new", templateVars);
   }
 });
 
 function urlsForUser(id){
-  let personalDatabase = {}
+  let personalDatabase = {};
 
   for (eachURL in urlDatabase){
-
     if(id == urlDatabase[eachURL].userID){
       personalDatabase[eachURL] = urlDatabase[eachURL].longURL
     }
   }
-  return personalDatabase
+  return personalDatabase;
 }
 
 //displays all given urls
 app.get("/urls", (req, res) =>{
-  let user = req.session.user_id;
-
+  let user = req.session.user_id
   let templateVars = {
     urls: urlsForUser(user),
     "user": users[user]
   }
-
   if(user === undefined){
     res.send("please login to correct account to view URLs")
   } else {
   res.render("urls_index", templateVars);
   }
-
 });
 
 app.get("/urls/:shortURL", (req, res) => {
 
   let user = req.session.user_id;
-
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
     "user": users[user]
   }
-  console.log(templateVars)
-
   if (!user || urlDatabase[req.params.shortURL].userID !== user){
     res.send("please login to view url")
   }
   else {
-  res.render("urls_show", templateVars)
+  res.render("urls_show", templateVars);
   }
 });
 
