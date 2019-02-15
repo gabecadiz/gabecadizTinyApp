@@ -1,13 +1,20 @@
 const express = require("express");
 const app = express();
-const cookieParser = require('cookie-parser');
+
 const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
 const PORT = 8080; // default port 8080
+const cookieSession = require('cookie-session')
+
+app.use(cookieSession({
+  name: 'session',
+  keys: ["random string for keys"],
+
+}))
 
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+
 
 app.set("view engine", "ejs");
 
@@ -52,8 +59,7 @@ app.post("/register", (req, res) =>{
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, 10)
   };
-  res.cookie("used_id", randomId);
-  console.log(users);
+  req.session.used_id = randomId;
 
   res.redirect(`/urls`);
 });
@@ -64,7 +70,8 @@ app.post("/login", (req, res) => {
   for (let eachUser in users){
     if (users[eachUser].email === req.body.email){
         if (bcrypt.compareSync(req.body.password, users[eachUser].password)){
-          res.cookie("used_id", users[eachUser].id);
+          req.session.user_id = users[eachUser].id;
+          console.log("req session login:",req.session.used_id)
           res.redirect(`/urls`);
         } else {
           res.status(403).end("Incorrect Password");
@@ -79,22 +86,21 @@ app.post("/login", (req, res) => {
 });
 //post that logs user out, removes cookie
 app.post("/logout", (req, res) =>{
-  res.clearCookie("used_id");
+  delete req.session.used_id;
   res.redirect(`/urls`);
 });
 
 //creates a random string associated with a given long URL
 app.post("/urls", (req, res) => {
-  let user = req.cookies["used_id"];
+  let user = req.session.user_id;
   let randomString = generateRandomString();
   urlDatabase[randomString] = {"longURL":req.body.longURL, "userID": user};
-  console.log(urlDatabase)
   res.redirect(`/urls/${randomString}`);
 });
 
 //deletes link from list
 app.post("/urls/:shortURL/delete", (req, res) =>{
-  let user = req.cookies["used_id"];
+  let user = req.session.user_id;
   if (!user || urlDatabase[req.params.shortURL].userID !== user){
     res.send("please login to delete url");
   } else {
@@ -105,7 +111,7 @@ app.post("/urls/:shortURL/delete", (req, res) =>{
 
 //updates short url be associated with a new given long URL from user
 app.post("/urls/:shortURL/update", (req, res) =>{
-  let user = req.cookies["used_id"];
+  let user = req.session.user_id;
   if (!user || urlDatabase[req.params.shortURL].userID !== user){
     res.send("please login to update url");
   } else {
@@ -116,7 +122,7 @@ app.post("/urls/:shortURL/update", (req, res) =>{
 
 //login page
 app.get("/login", (req, res) => {
-  let user = req.cookies["used_id"];
+  let user = req.session.user_id;
     let templateVars = {
      urls: urlDatabase,
      "user": users[user]
@@ -126,7 +132,7 @@ app.get("/login", (req, res) => {
 
 //register page
 app.get("/register", (req, res) => {
-    let user = req.cookies["used_id"];
+  let user = req.session.user_id;
     let templateVars = {
      urls: urlDatabase,
      "user" : users[user]
@@ -145,7 +151,7 @@ app.get("/", (req, res) =>{
 });
 
 app.get("/urls/new", (req, res) => {
-    let user = req.cookies["used_id"];
+  let user = req.session.user_id;
     let templateVars = {
      urls: urlDatabase,
      "user": users[user]
@@ -171,8 +177,9 @@ function urlsForUser(id){
 
 //displays all given urls
 app.get("/urls", (req, res) =>{
-  let user = req.cookies["used_id"]
-
+  let user = req.session.user_id;
+  console.log("req session urls",req.session.user_id)
+  console.log("user",user)
   let templateVars = {
     urls: urlsForUser(user),
     "user": users[user]
@@ -188,7 +195,7 @@ app.get("/urls", (req, res) =>{
 
 app.get("/urls/:shortURL", (req, res) => {
 
-  let user = req.cookies["used_id"]
+  let user = req.session.user_id;
 
   let templateVars = {
     shortURL: req.params.shortURL,
