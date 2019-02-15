@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
 let urlDatabase = {
-  "1godsK": {longURL: "http://www.google.com", userID: "123456", date: "Fri Feb 15 2019"},
+  "1godsK": {longURL: "http://www.baseball.com", userID: "123456", date: "Fri Feb 15 2019"},
   "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "aJ48lW", date: "Fri Feb 15 2019"},
   "9sm5xK": {longURL: "http://www.google.com", userID: "aJ48lW", date: "Mon Feb 11 2019"},
 };
@@ -49,10 +49,11 @@ function urlsForUser(id){
       userURLs[eachURL] = {longURL: urlDatabase[eachURL].longURL, date: urlDatabase[eachURL].date}
     }
   }
-  console.log(userURLs)
   return userURLs;
 }
 
+/*creates current date in format: Weekday Month Day Year
+Example: Fri Feb 15 2019 */
 function dateMaker (){
   var d = new Date();
   var date = d.toString().split(" ")
@@ -127,21 +128,21 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) =>{
   let user = req.session.user_id;
   if (!user || urlDatabase[req.params.shortURL].userID !== user){
-    res.send("please login to delete url");
+    res.redirect("/please_login");
   } else {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect(`/urls`);
-  }
+    delete urlDatabase[req.params.shortURL];
+    res.redirect(`/urls`);
+    }
 });
 
 //updates short url be associated with a new given long URL from user
 app.post("/urls/:shortURL/update", (req, res) =>{
   let user = req.session.user_id;
   if (!user || urlDatabase[req.params.shortURL].userID !== user){
-    res.send("please login to update url");
+    res.redirect("/please_login");
   } else {
-  urlDatabase[req.params.shortURL] = {"longURL":req.body.newLongURL, "userID": user, "date": dateMaker()};
-  res.redirect(`/urls`);
+    urlDatabase[req.params.shortURL] = {"longURL":req.body.newLongURL, "userID": user, "date": dateMaker()};
+    res.redirect(`/urls`);
   }
 });
 
@@ -194,7 +195,7 @@ app.get("/urls/new", (req, res) => {
      "user": users[user]
   }
   if(user === undefined){
-    res.redirect(`/login`);
+    res.redirect(`/please_login`);
   } else {
   res.render("urls_new", templateVars);
   }
@@ -209,7 +210,7 @@ app.get("/urls", (req, res) =>{
     "user": users[user]
   }
   if(user === undefined){
-    res.send("please login to correct account to view URLs")
+    res.redirect("/please_login")
   } else {
   res.render("urls_index", templateVars);
   }
@@ -226,12 +227,16 @@ app.get("/urls/:shortURL", (req, res) => {
     date: urlDatabase[req.params.shortURL].date
   }
   if (!user || urlDatabase[req.params.shortURL].userID !== user){
-    res.send("please login to view url")
+    res.redirect("/please_login")
   }
   else {
-  res.render("urls_show", templateVars);
+    res.render("urls_show", templateVars);
   }
 });
+
+app.get("/please_login", (req, res) =>{
+  res.render("please_login")
+})
 
 //displays url database
 app.get("/urls.json", (req,res) => {
