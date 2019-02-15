@@ -119,9 +119,13 @@ app.post("/logout", (req, res) =>{
 //creates a random string associated with a given long URL
 app.post("/urls", (req, res) => {
   let user = req.session.user_id;
-  let randomString = generateRandomString();
-  urlDatabase[randomString] = {"longURL":req.body.longURL, "userID": user, "date": dateMaker()};
-  res.redirect(`/urls/${randomString}`);
+  if (!user){
+    res.redirect("/please_login");
+  } else{
+    let randomString = generateRandomString();
+    urlDatabase[randomString] = {"longURL":req.body.longURL, "userID": user, "date": dateMaker()};
+    res.redirect(`/urls/${randomString}`);
+  }
 });
 
 //deletes link from list
@@ -172,8 +176,12 @@ app.get("/register", (req, res) => {
 
 //redirects user from short url to associated long url
 app.get("/u/:shortURL", (req, res) => {
+  if (!urlDatabase[req.params.shortURL]){
+    res.send("Short URL does not exist")
+  } else{
   const fullURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(fullURL);
+  }
 });
 
 
@@ -181,7 +189,7 @@ app.get("/u/:shortURL", (req, res) => {
 app.get("/", (req, res) =>{
   let user = req.session.user_id;
   if(user === undefined){
-    res.redirect(`/login`);
+    res.redirect(`/please_login`);
   } else {
     res.redirect(`/urls`);
   }
