@@ -16,6 +16,7 @@
       <% include partials/_header %>
 
       <div><b> ShortURL: <%= shortURL%> </b></div>
+      <div> Created: <%= date%></div>
 
       <form class="form-inline" action="/urls/<%= shortURL %>/update" method="POST">
       <div class="form-group mb-2">

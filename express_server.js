@@ -16,9 +16,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
 let urlDatabase = {
-  "1godsK": {longURL: "http://www.google.com", userID: "123456"},
-  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "aJ48lW"},
-  "9sm5xK": {longURL: "http://www.google.com", userID: "aJ48lW"},
+  "1godsK": {longURL: "http://www.google.com", userID: "123456", date: "Fri Feb 15 2019"},
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "aJ48lW", date: "Fri Feb 15 2019"},
+  "9sm5xK": {longURL: "http://www.google.com", userID: "aJ48lW", date: "Mon Feb 11 2019"},
 };
 const users = {
   "aJ48lW": {
@@ -46,10 +46,23 @@ function urlsForUser(id){
   let userURLs = {};
   for (eachURL in urlDatabase){
     if(id == urlDatabase[eachURL].userID){
-      userURLs[eachURL] = urlDatabase[eachURL].longURL
+      userURLs[eachURL] = {longURL: urlDatabase[eachURL].longURL, date: urlDatabase[eachURL].date}
     }
   }
+  console.log(userURLs)
   return userURLs;
+}
+
+function dateMaker (){
+  var d = new Date();
+  var date = d.toString().split(" ")
+  var arrayDate = [];
+  arrayDate.push(date[0]);
+  arrayDate.push(date[1]);
+  arrayDate.push(date[2]);
+  arrayDate.push(date[3]);
+  var dateSentence = arrayDate.join(" ");
+  return dateSentence;
 }
 
 /*post from registration page
@@ -106,7 +119,7 @@ app.post("/logout", (req, res) =>{
 app.post("/urls", (req, res) => {
   let user = req.session.user_id;
   let randomString = generateRandomString();
-  urlDatabase[randomString] = {"longURL":req.body.longURL, "userID": user};
+  urlDatabase[randomString] = {"longURL":req.body.longURL, "userID": user, "date": dateMaker()};
   res.redirect(`/urls/${randomString}`);
 });
 
@@ -127,7 +140,7 @@ app.post("/urls/:shortURL/update", (req, res) =>{
   if (!user || urlDatabase[req.params.shortURL].userID !== user){
     res.send("please login to update url");
   } else {
-  urlDatabase[req.params.shortURL] = {"longURL":req.body.newLongURL, "userID": user};
+  urlDatabase[req.params.shortURL] = {"longURL":req.body.newLongURL, "userID": user, "date": dateMaker()};
   res.redirect(`/urls`);
   }
 });
@@ -209,7 +222,8 @@ app.get("/urls/:shortURL", (req, res) => {
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
-    "user": users[user]
+    "user": users[user],
+    date: urlDatabase[req.params.shortURL].date
   }
   if (!user || urlDatabase[req.params.shortURL].userID !== user){
     res.send("please login to view url")
