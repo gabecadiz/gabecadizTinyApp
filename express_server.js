@@ -71,7 +71,7 @@ app.post("/login", (req, res) => {
     if (users[eachUser].email === req.body.email){
         if (bcrypt.compareSync(req.body.password, users[eachUser].password)){
           req.session.user_id = users[eachUser].id;
-          console.log("req session login:",req.session.used_id)
+
           res.redirect(`/urls`);
         } else {
           res.status(403).end("Incorrect Password");
@@ -86,7 +86,7 @@ app.post("/login", (req, res) => {
 });
 //post that logs user out, removes cookie
 app.post("/logout", (req, res) =>{
-  delete req.session.used_id;
+  req.session = null;
   res.redirect(`/urls`);
 });
 
@@ -147,7 +147,12 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/", (req, res) =>{
-  res.send("Hello!");
+  let user = req.session.user_id;
+  if(user === undefined){
+    res.redirect(`/login`)
+  } else {
+    res.redirect(`/urls`);
+  }
 });
 
 app.get("/urls/new", (req, res) => {
@@ -178,8 +183,7 @@ function urlsForUser(id){
 //displays all given urls
 app.get("/urls", (req, res) =>{
   let user = req.session.user_id;
-  console.log("req session urls",req.session.user_id)
-  console.log("user",user)
+
   let templateVars = {
     urls: urlsForUser(user),
     "user": users[user]
@@ -199,9 +203,10 @@ app.get("/urls/:shortURL", (req, res) => {
 
   let templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     "user": users[user]
   }
+  console.log(templateVars)
 
   if (!user || urlDatabase[req.params.shortURL].userID !== user){
     res.send("please login to view url")
