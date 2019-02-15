@@ -28,6 +28,8 @@ const users = {
   }
 };
 
+
+//creates a 6 digit string containing only alphanumeric characters
 function generateRandomString() {
   let randomString="";
   let characterSet = "abcdefghijklmnopqrstyuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -37,11 +39,28 @@ function generateRandomString() {
   return randomString;
 }
 
+/*filters through each url in url database and
+only takes urls that match user id to display in urls page
+used in app.get/urls */
+function urlsForUser(id){
+  let userURLs = {};
+  for (eachURL in urlDatabase){
+    if(id == urlDatabase[eachURL].userID){
+      userURLs[eachURL] = urlDatabase[eachURL].longURL
+    }
+  }
+  return userURLs;
+}
+
+/*post from registration page
+redirects user to urls page if form is filled correctly,
+otherwise redirects to page telling user what was wrong
+*/
 app.post("/register", (req, res) =>{
 
   let randomId = generateRandomString();
   if(!req.body.email || !req.body.password){
-    res.status(400).end("missing input");
+    res.status(400).end("Missing email or password input");
   } else if (req.body.email ){
     for ( let eachUser in users){
       if (users[eachUser].email === req.body.email){
@@ -143,6 +162,8 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(fullURL);
 });
 
+
+//homepage, prompts user to login, if already logged in brings to main url list page
 app.get("/", (req, res) =>{
   let user = req.session.user_id;
   if(user === undefined){
@@ -152,6 +173,7 @@ app.get("/", (req, res) =>{
   }
 });
 
+//page that contains update form
 app.get("/urls/new", (req, res) => {
   let user = req.session.user_id;
     let templateVars = {
@@ -165,16 +187,6 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-function urlsForUser(id){
-  let personalDatabase = {};
-
-  for (eachURL in urlDatabase){
-    if(id == urlDatabase[eachURL].userID){
-      personalDatabase[eachURL] = urlDatabase[eachURL].longURL
-    }
-  }
-  return personalDatabase;
-}
 
 //displays all given urls
 app.get("/urls", (req, res) =>{
@@ -190,6 +202,7 @@ app.get("/urls", (req, res) =>{
   }
 });
 
+//displays your individual url, redirects if user did not create this url
 app.get("/urls/:shortURL", (req, res) => {
 
   let user = req.session.user_id;
@@ -206,10 +219,12 @@ app.get("/urls/:shortURL", (req, res) => {
   }
 });
 
+//displays url database
 app.get("/urls.json", (req,res) => {
   res.json(urlDatabase);
 });
 
+//example page from beginning of project instructions
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b><body></html>\n")
 });
