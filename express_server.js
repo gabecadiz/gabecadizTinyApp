@@ -35,9 +35,9 @@ function generateRandomString() {
   let characterSet = "abcdefghijklmnopqrstyuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   for(let i = 0; i <= 5; i++){
     randomString += characterSet.charAt(Math.floor(Math.random() * characterSet.length));
-  }
+  };
   return randomString;
-}
+};
 
 /*filters through each url in url database and
 only takes urls that match user id to display in urls page
@@ -46,11 +46,13 @@ function urlsForUser(id){
   let userURLs = {};
   for (eachURL in urlDatabase){
     if(id == urlDatabase[eachURL].userID){
-      userURLs[eachURL] = {longURL: urlDatabase[eachURL].longURL, date: urlDatabase[eachURL].date}
-    }
-  }
+      userURLs[eachURL] = {
+        longURL: urlDatabase[eachURL].longURL,
+        date: urlDatabase[eachURL].date}
+    };
+  };
   return userURLs;
-}
+};
 
 /*creates current date in format: Weekday Month Day Year
 Example: Fri Feb 15 2019 */
@@ -58,10 +60,9 @@ function dateMaker (){
   var d = new Date();
   var date = d.toString().split(" ")
   var arrayDate = [];
-  arrayDate.push(date[0]);
-  arrayDate.push(date[1]);
-  arrayDate.push(date[2]);
-  arrayDate.push(date[3]);
+  for(i = 0; i < 4; i ++){
+    arrayDate.push(date[i]);
+  }
   var dateSentence = arrayDate.join(" ");
   return dateSentence;
 }
@@ -70,6 +71,12 @@ function dateMaker (){
 redirects user to urls page if form is filled correctly,
 otherwise redirects to page telling user what was wrong
 */
+
+function emailChecker(storedEmail, reqEmail, callback){
+  if (storedEmail === reqEmail){
+    callback();
+  };
+};
 app.post("/register", (req, res) =>{
 
   let randomId = generateRandomString();
@@ -77,11 +84,11 @@ app.post("/register", (req, res) =>{
     res.status(400).end("Missing email or password input");
   } else if (req.body.email ){
     for ( let eachUser in users){
-      if (users[eachUser].email === req.body.email){
-        res.status(400).end("email already exists");
-      }
-    }
-  }
+      emailChecker (users[eachUser].email, req.body.email, function(){
+      res.redirect(`/used_email`);
+      });
+    };
+  };
   users[randomId] = {
     id: randomId,
     email: req.body.email,
@@ -98,17 +105,17 @@ app.post("/login", (req, res) => {
     if (users[eachUser].email === req.body.email){
       if (bcrypt.compareSync(req.body.password, users[eachUser].password)){
         req.session.user_id = users[eachUser].id;
-          res.redirect(`/urls`);
+        res.redirect(`/urls`);
         } else {
-          res.status(403).end("Incorrect Password");
-        }
+            res.status(403).end("Incorrect Password");
+        };
     } else {
-      emailFlag = false;
-    }
-  }
+        emailFlag = false;
+    };
+  };
   if(!emailFlag){
     res.status(403).end("Email does not exist");
-  }
+  };
 });
 //post that logs user out, removes cookie
 app.post("/logout", (req, res) =>{
@@ -122,10 +129,14 @@ app.post("/urls", (req, res) => {
   if (!user){
     res.redirect("/please_login");
   } else{
-    let randomString = generateRandomString();
-    urlDatabase[randomString] = {"longURL":req.body.longURL, "userID": user, "date": dateMaker()};
-    res.redirect(`/urls/${randomString}`);
-  }
+      let randomString = generateRandomString();
+      urlDatabase[randomString] = {
+      "longURL":req.body.longURL,
+      "userID": user,
+      "date": dateMaker()
+      };
+      res.redirect(`/urls/${randomString}`);
+    };
 });
 
 //deletes link from list
@@ -134,9 +145,9 @@ app.post("/urls/:shortURL/delete", (req, res) =>{
   if (!user || urlDatabase[req.params.shortURL].userID !== user){
     res.redirect("/please_login");
   } else {
-    delete urlDatabase[req.params.shortURL];
-    res.redirect(`/urls`);
-    }
+      delete urlDatabase[req.params.shortURL];
+      res.redirect(`/urls`);
+    };
 });
 
 //updates short url be associated with a new given long URL from user
@@ -145,9 +156,9 @@ app.post("/urls/:shortURL/update", (req, res) =>{
   if (!user || urlDatabase[req.params.shortURL].userID !== user){
     res.redirect("/please_login");
   } else {
-    urlDatabase[req.params.shortURL] = {"longURL":req.body.newLongURL, "userID": user, "date": dateMaker()};
-    res.redirect(`/urls`);
-  }
+      urlDatabase[req.params.shortURL] = {"longURL":req.body.newLongURL, "userID": user, "date": dateMaker()};
+      res.redirect(`/urls`);
+    };
 });
 
 //login page
@@ -163,50 +174,50 @@ app.get("/login", (req, res) => {
 //register page
 app.get("/register", (req, res) => {
   let user = req.session.user_id;
-  if(user === undefined){
+  if(!user){
     let templateVars = {
      urls: urlDatabase,
      "user" : users[user]
   };
   res.render("registration", templateVars);
   } else {
-    res.redirect(`/urls`)
-  }
+      res.redirect(`/urls`)
+  };
 });
 
 //redirects user from short url to associated long url
 app.get("/u/:shortURL", (req, res) => {
   if (!urlDatabase[req.params.shortURL]){
     res.send("Short URL does not exist")
-  } else{
-  const fullURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(fullURL);
-  }
+  } else {
+      const fullURL = urlDatabase[req.params.shortURL].longURL;
+      res.redirect(fullURL);
+    };
 });
 
 
 //homepage, prompts user to login, if already logged in brings to main url list page
 app.get("/", (req, res) =>{
   let user = req.session.user_id;
-  if(user === undefined){
+  if(!user){
     res.redirect(`/please_login`);
   } else {
-    res.redirect(`/urls`);
-  }
+      res.redirect(`/urls`);
+    };
 });
 
 //page that contains update form
 app.get("/urls/new", (req, res) => {
   let user = req.session.user_id;
-    let templateVars = {
-     urls: urlDatabase,
-     "user": users[user]
-  }
-  if(user === undefined){
+  let templateVars = {
+    urls: urlDatabase,
+    "user": users[user]
+  };
+  if(!user){
     res.redirect(`/please_login`);
   } else {
-  res.render("urls_new", templateVars);
-  }
+      res.render("urls_new", templateVars);
+    };
 });
 
 
@@ -216,12 +227,12 @@ app.get("/urls", (req, res) =>{
   let templateVars = {
     urls: urlsForUser(user),
     "user": users[user]
-  }
-  if(user === undefined){
+  };
+  if(!user){
     res.redirect("/please_login")
   } else {
-  res.render("urls_index", templateVars);
-  }
+     res.render("urls_index", templateVars);
+  };
 });
 
 //displays your individual url, redirects if user did not create this url
@@ -233,28 +244,27 @@ app.get("/urls/:shortURL", (req, res) => {
     longURL: urlDatabase[req.params.shortURL].longURL,
     "user": users[user],
     date: urlDatabase[req.params.shortURL].date
-  }
+  };
   if (!user || urlDatabase[req.params.shortURL].userID !== user){
     res.redirect("/please_login")
-  }
-  else {
-    res.render("urls_show", templateVars);
-  }
+  } else {
+      res.render("urls_show", templateVars);
+    };
+});
+
+app.get("/used_email", (req, res) =>{
+  res.render("used_email")
 });
 
 app.get("/please_login", (req, res) =>{
   res.render("please_login")
-})
+});
 
 //displays url database
 app.get("/urls.json", (req,res) => {
   res.json(urlDatabase);
 });
 
-//example page from beginning of project instructions
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b><body></html>\n")
-});
 
 app.listen(PORT, () =>{
   console.log(`TinyApp listening on port ${PORT}!`);

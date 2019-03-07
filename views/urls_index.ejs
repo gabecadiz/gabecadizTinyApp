@@ -22,10 +22,10 @@
 
     <h2> My URLs </h2>
     <table>
-      <tr> <td><td><td><b>Created On</b>
+      <tr> <td>Copy The Short Url<td><td><b>Created On</b><td>
       <% for (var shortenedURL in urls) { %>
       <tr style="padding-bottom:15px">
-        <td><b> <%= shortenedURL%> </b> </td>
+        <td><b> <a href="http://localhost:8080/u/<%= shortenedURL%>/"> localhost:8080/u/<%= shortenedURL%>/</a></b> </td>
         <td> <%= urls[shortenedURL].longURL %></td>
         <td> <%= urls[shortenedURL].date %></td>
         <td> <a href="/urls/<%=shortenedURL%>" >Edit</a> </td>
